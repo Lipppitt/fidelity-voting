@@ -3,6 +3,7 @@ export default {
     content: [
         "./resources/**/*.ts",
         "./resources/**/*.vue",
+        "./resources/**/*.php",
     ],
     theme: {
         extend: {},
