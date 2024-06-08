@@ -6,6 +6,9 @@ export default {
         "./resources/**/*.php",
     ],
     theme: {
+        container: {
+            center: true,
+        },
         extend: {},
     },
     plugins: [],
