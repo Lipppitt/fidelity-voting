@@ -1,3 +1,9 @@
+declare global {
+    interface Window {
+        axios:any;
+    }
+}
+
 import axios from 'axios';
 window.axios = axios;
 
