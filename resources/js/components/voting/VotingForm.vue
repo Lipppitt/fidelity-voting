@@ -45,7 +45,11 @@ const handleSubmit = async () => {
     }
 
   } catch (err) {
-    console.error(err);
+    if (err.response.data.message) {
+      error.value = err.response.data.message;
+    } else {
+      error.value = "An error occurred. Please try again."
+    }
   } finally {
     isProcessingVote.value = false;
   }
@@ -59,7 +63,7 @@ const handleSubmit = async () => {
         {{poll.title}}
       </h1>
 
-      <div v-if="error">
+      <div v-if="error" class="bg-red-100 text-red-600 text-sm px-3 py-2 rounded-lg mb-4">
         {{error}}
       </div>
 

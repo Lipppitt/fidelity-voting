@@ -7,6 +7,8 @@ import CustomButton from "@/components/forms/CustomButton.vue";
 import {useUserStore} from "@/stores/UserStore";
 import Panel from "@/components/global/Panel.vue";
 
+const {setUser, getUser, isEmailVerified} = useUserStore();
+
 const form = ref({
     email: '',
     password: ''
@@ -14,9 +16,6 @@ const form = ref({
 
 const isProcessing = ref(false);
 const error = ref(null);
-
-const {setUser, getUser, isEmailVerified} = useUserStore();
-
 const emailVerificationResent = ref(false);
 
 const handleSubmit = async () => {
@@ -34,7 +33,11 @@ const handleSubmit = async () => {
     }
 
   } catch (err) {
-    console.error(err);
+    if (err.response.data.message) {
+      error.value = err.response.data.message;
+    } else {
+      error.value = "An error occurred. Please try again."
+    }
   } finally {
     isProcessing.value = false;
   }
@@ -46,7 +49,11 @@ const handleResendEmailVerification = async () => {
     await axios.post('/api/email/verify');
     emailVerificationResent.value = true;
   } catch (err) {
-    console.error(err);
+    if (err.response.data.message) {
+      error.value = err.response.data.message;
+    } else {
+      error.value = "An error occurred. Please try again."
+    }
   } finally {
     isProcessing.value = false;
   }
@@ -58,14 +65,14 @@ const handleResendEmailVerification = async () => {
   <Panel>
     <div v-if="getUser && !isEmailVerified">
       <p class="mb-4">An email has been sent to your registered email address. To complete the registration, please click the verification link in the email.</p>
-      <p class="mb-4">If you didn't receive the email, please check your spam folder. You can also request a new verification email <button type="button" @click="handleResendEmailVerification">here.</button></p>
+      <p class="mb-4">If you didn't receive the email, please check your spam folder. You can also request a new verification email <button type="button" class="underline" @click="handleResendEmailVerification">here.</button></p>
       <p v-if="emailVerificationResent" class="text-green-700">Verification email has been resent</p>
     </div>
     <form v-else @submit.prevent="handleSubmit">
-      <h1 class="text-xl text-center">
+      <h1 class="text-xl text-center mb-2">
         Register to vote
       </h1>
-      <div v-if="error">
+      <div v-if="error" class="bg-red-100 text-red-600 text-sm px-3 py-2 rounded-lg mb-4">
         {{error}}
       </div>
 
