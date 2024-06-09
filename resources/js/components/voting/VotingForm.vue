@@ -15,6 +15,7 @@ const {getUser} = useUserStore();
 
 const selectedOption = ref<null | VotingOption>(null);
 const isProcessingVote = ref(false);
+const processingMessage = ref('');
 const error = ref(null);
 
 const getUsersVote = computed(() => {
@@ -38,7 +39,11 @@ const handleSubmit = async () => {
   try {
     isProcessingVote.value = true;
     const response = await axios.post(`/api/${props.poll.id}/vote`, {vote_id: vote.value});
-    console.log(response);
+
+    if (response.data.success && response.data.message) {
+      processingMessage.value = response.data.message;
+    }
+
   } catch (err) {
     console.error(err);
   } finally {
@@ -60,6 +65,9 @@ const handleSubmit = async () => {
 
       <p v-if="getUsersVote.length > 0" class="text-center text-green-500 font-bold mt-4 text-lg">
         You voted: {{getUsersVote}}
+      </p>
+      <p v-else-if="processingMessage">
+          {{processingMessage}}
       </p>
       <template v-else>
         <div v-if="poll?.options">

@@ -22,6 +22,6 @@ class VoteController extends Controller
 
 		$voteService->vote($poll, $userId, $voteId, $ipAddress, $locationService);
 
-		return response()->json(['success' => true, 'message' => 'Vote is being processed.']);
+		return response()->json(['success' => true, 'message' => 'Thank you. Your vote is being processed.']);
 	}
 }
