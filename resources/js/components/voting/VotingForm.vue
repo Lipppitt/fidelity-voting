@@ -1,41 +1,43 @@
 <script setup lang="ts">
 import CustomButton from "@/components/forms/CustomButton.vue";
 import VotingOption from "@/components/voting/VotingOption.vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import axios from "axios";
+import type {Poll} from "@/types";
+import {useUserStore} from "@/stores/UserStore";
+import Panel from "@/components/global/Panel.vue";
 
-const votingOptions = {
-  title: 'What is your favorite season of the year?',
-  options: [
-    {
-      label: 'Spring',
-      value: 1
-    },
-    {
-      label: 'Summer',
-      value: 2
-    },
-    {
-      label: 'Autumn',
-      value: 3
-    },
-    {
-      label: 'Winter',
-      value: 4
-    }
-  ]
-};
+const props = defineProps<{
+  poll: Poll
+}>();
+
+const {getUser} = useUserStore();
 
 const selectedOption = ref<null | VotingOption>(null);
 const isProcessingVote = ref(false);
 const error = ref(null);
+
+const getUsersVote = computed(() => {
+  if (props.poll?.id && getUser.value.votes) {
+    const vote = getUser.value.votes.find(userVote => userVote.poll_id === props.poll.id);
+
+    if (vote) {
+      const option = props.poll.options.find(o => o.value === vote.option_id);
+
+      if (option) {
+        return option.label;
+      }
+    }
+  }
+  return '';
+});
 
 const handleSubmit = async () => {
   const vote = selectedOption.value;
 
   try {
     isProcessingVote.value = true;
-    const response = await axios.post('/api/vote', {vote: vote.value});
+    const response = await axios.post(`/api/${props.poll.id}/vote`, {vote_id: vote.value});
     console.log(response);
   } catch (err) {
     console.error(err);
@@ -46,29 +48,33 @@ const handleSubmit = async () => {
 </script>
 
 <template>
+  <Panel v-if="poll">
     <form @submit.prevent="handleSubmit">
-        <h1 v-if="votingOptions?.title" class="text-xl text-center">
-          {{votingOptions.title}}
-        </h1>
+      <h1 v-if="poll?.title" class="text-xl text-center">
+        {{poll.title}}
+      </h1>
 
-        <p v-if="selectedOption">
-            You have selected: {{selectedOption}}
-        </p>
+      <div v-if="error">
+        {{error}}
+      </div>
 
-        <div v-if="error">
-            {{error}}
+      <p v-if="getUsersVote.length > 0" class="text-center text-green-500 font-bold mt-4 text-lg">
+        You voted: {{getUsersVote}}
+      </p>
+      <template v-else>
+        <div v-if="poll?.options">
+          <VotingOption v-for="option in poll.options"
+                        :option="option"
+                        v-model:voteSelected="selectedOption"
+          />
         </div>
 
-        <div v-if="votingOptions?.options">
-            <VotingOption v-for="option in votingOptions.options"
-                          :option="option"
-                          v-model:voteSelected="selectedOption"
-            />
-        </div>
-        <CustomButton type="submit" :disabled="isProcessingVote" :is-loading="isProcessingVote">
-            Submit Vote
+        <CustomButton  type="submit" :disabled="isProcessingVote" :is-loading="isProcessingVote">
+          Submit Vote
         </CustomButton>
+      </template>
     </form>
+  </Panel>
 </template>
 
 <style scoped>

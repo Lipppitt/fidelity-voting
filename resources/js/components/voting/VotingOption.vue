@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import CustomLabel from "@/components/forms/CustomLabel.vue";
 import CustomRadio from "@/components/forms/CustomRadio.vue";
-
-type VotingOption = {
-    label: string;
-    value: number;
-}
+import type {PollOption} from "@/types";
 
 const emit = defineEmits(['update:voteSelected']);
 
 defineProps({
     option: {
-        type: Object as () => VotingOption,
+        type: Object as () => PollOption,
         default: () => Object
     }
 });
 
-const handleSelectedVote = (vote: VotingOption) => {
+const handleSelectedVote = (vote: PollOption) => {
     emit('update:voteSelected', vote);
 };
 

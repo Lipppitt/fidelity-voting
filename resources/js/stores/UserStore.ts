@@ -6,6 +6,7 @@ type User = {
     id: number;
     email: string;
     email_verified_at?: string;
+    votes: [];
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -16,7 +17,8 @@ export const useUserStore = defineStore('user', () => {
         user.value = {
             id: userData.id,
             email: userData.email,
-            email_verified_at: userData.email_verified_at
+            email_verified_at: userData.email_verified_at,
+            votes: userData.votes
         };
     }
 
