@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import Layout from "@/layouts/Layout.vue";
-import Panel from "@/components/global/Panel.vue";
 import Container from "@/layouts/Container.vue";
 import VotingForm from "@/components/voting/VotingForm.vue";
 import RegisterForm from "@/components/auth/RegisterForm.vue";
@@ -14,47 +13,54 @@ const {getUser, isEmailVerified} = useUserStore();
 
 const isLoading = ref(false);
 const latestPoll = ref<Poll | null>(null);
+const userHasPendingVote = ref(false);
 
 onMounted(async () => {
-  await fetchLatestPoll();
+    await fetchLatestPoll();
 });
 
 const fetchLatestPoll = async () => {
-  try {
-    isLoading.value = true;
-    const response = await axios.get(`/api/latest-poll`);
+    try {
+        isLoading.value = true;
+        const response = await axios.get(`/api/latest-poll`);
 
-    if (response.data?.poll) {
-      const poll = response.data.poll;
+        if (response.data?.poll) {
+            const poll = response.data.poll;
 
-      const pollOptions = poll.options.map((option: {label: string; id: number}) => {
-        return {
-            label: option.label,
-            value: option.id
+            const pollOptions = poll.options.map((option: { label: string; id: number }) => {
+                return {
+                    label: option.label,
+                    value: option.id
+                }
+            });
+
+            latestPoll.value = {
+                id: poll.id,
+                title: poll.title,
+                options: pollOptions
+            }
         }
-      });
 
-      latestPoll.value = {
-        id: poll.id,
-        title: poll.title,
-        options: pollOptions
-      }
+        if (response.data?.userHasPendingVote) {
+            userHasPendingVote.value = true;
+        }
+
+    } catch (err) {
+        console.error(err);
+    } finally {
+        isLoading.value = false;
     }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    isLoading.value = false;
-  }
 }
 </script>
 
 <template>
     <Layout>
         <Container class="max-w-lg">
-              <VotingForm v-if="getUser && isEmailVerified"
-                          :poll="latestPoll"
-              />
-              <RegisterForm v-else/>
+            <VotingForm v-if="getUser && isEmailVerified"
+                        :poll="latestPoll"
+                        :user-has-pending-vote="userHasPendingVote"
+            />
+            <RegisterForm v-else/>
         </Container>
     </Layout>
 </template>

@@ -8,23 +8,24 @@ import {useUserStore} from "@/stores/UserStore";
 import Panel from "@/components/global/Panel.vue";
 
 const props = defineProps<{
-  poll: Poll
+    poll: Poll,
+    userHasPendingVote: boolean
 }>();
 
 const {getUser} = useUserStore();
 
-const selectedOption = ref<null | VotingOption>(null);
+const selectedOption = ref<null | typeof VotingOption>(null);
 const isProcessingVote = ref(false);
-const processingMessage = ref('');
-const error = ref(null);
+const isSuccess = ref(false);
+const error = ref<null | string>(null);
 
 const getUsersVote = computed(() => {
-  if (props.poll?.id && getUser.value.votes) {
+  if (props.poll?.id && getUser.value && getUser.value.votes) {
+
     const vote = getUser.value.votes.find(userVote => userVote.poll_id === props.poll.id);
 
     if (vote) {
       const option = props.poll.options.find(o => o.value === vote.option_id);
-
       if (option) {
         return option.label;
       }
@@ -35,16 +36,18 @@ const getUsersVote = computed(() => {
 
 const handleSubmit = async () => {
   const vote = selectedOption.value;
+  if (!vote) return;
 
   try {
     isProcessingVote.value = true;
+
     const response = await axios.post(`/api/${props.poll.id}/vote`, {vote_id: vote.value});
 
-    if (response.data.success && response.data.message) {
-      processingMessage.value = response.data.message;
+    if (response.data.success) {
+        isSuccess.value = true;
     }
 
-  } catch (err) {
+  } catch (err: any) {
     if (err.response.data.message) {
       error.value = err.response.data.message;
     } else {
@@ -70,8 +73,8 @@ const handleSubmit = async () => {
       <p v-if="getUsersVote.length > 0" class="text-center text-green-500 font-bold mt-4 text-lg">
         You voted: {{getUsersVote}}
       </p>
-      <p v-else-if="processingMessage">
-          {{processingMessage}}
+      <p v-else-if="isSuccess || userHasPendingVote">
+          Your previous vote is being processed.
       </p>
       <template v-else>
         <div v-if="poll?.options">
@@ -81,7 +84,7 @@ const handleSubmit = async () => {
           />
         </div>
 
-        <CustomButton  type="submit" :disabled="isProcessingVote" :is-loading="isProcessingVote">
+        <CustomButton type="submit" :disabled="isProcessingVote" :is-loading="isProcessingVote">
           Submit Vote
         </CustomButton>
       </template>

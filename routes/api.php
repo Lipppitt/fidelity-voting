@@ -32,7 +32,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 
 // Poll routes
 Route::get('/latest-poll', [PollController::class, 'latest'])
-	->middleware('auth:sanctum');;
+	->middleware('auth:sanctum');
 
 // Vote routes
 Route::post('/{poll}/vote', [VoteController::class, 'store'])
