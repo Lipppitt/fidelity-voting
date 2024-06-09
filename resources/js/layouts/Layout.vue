@@ -6,7 +6,7 @@ import Footer from "@/layouts/Footer.vue";
 <template>
     <Header/>
     <main class="flex-1 p-4">
-        <slot></slot>
+      <slot></slot>
     </main>
     <Footer/>
 </template>
