@@ -44,32 +44,38 @@ This is a simple voting application built with Laravel 11 and Vue 3. Follow the 
 
 6. Configure Laravel Sanctum.
 
-    - Ensure the `SESSION_DOMAIN` and `SANCTUM_STATEFUL_DOMAINS` are set in your `.env` file. For example:
+   - Ensure the `SESSION_DOMAIN` and `SANCTUM_STATEFUL_DOMAINS` are set in your `.env` file. For example:
 
-        ```env
-        SESSION_DOMAIN=localhost
-        SANCTUM_STATEFUL_DOMAINS=localhost:8000
-        ```
+       ```env
+       SESSION_DOMAIN=localhost
+       SANCTUM_STATEFUL_DOMAINS=localhost:8000
+       ```
 
-    - Publish the Sanctum configuration file.
+   - Publish the Sanctum configuration file.
 
-        ```sh
-        php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
-        ```
+       ```sh
+       php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+       ```
 
-    - Run the Sanctum migrations.
+   - Run the Sanctum migrations.
 
-        ```sh
-        php artisan migrate
-        ```
+       ```sh
+       php artisan migrate
+       ```
 
-7. Run the development server.
+7. Seed the database.
+
+    ```sh
+    php artisan db:seed --class=PollSeeder
+    ```
+
+8. Run the development server.
 
     ```sh
     php artisan serve
     ```
 
-8. Start the queue worker.
+9. Start the queue worker.
 
     ```sh
     php artisan queue:work
