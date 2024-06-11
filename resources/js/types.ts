@@ -8,3 +8,10 @@ export type Poll = {
     title: string;
     options: PollOption[];
 }
+
+export type UserVote = {
+    id: number;
+    option_id: number;
+    poll_id: number;
+    user_id: number;
+}
